@@ -37,7 +37,7 @@ class IrcSocket:
     def join(self, channel):
         """ Adds channel to the list of channels that should be joined
         """
-        self.channels.append(channel)
+        self.channels.add(channel)
 
     def quit(self, reason=''):
         """ Quits the session. Reason will be sent as the quit message.
