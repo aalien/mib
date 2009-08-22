@@ -126,7 +126,7 @@ class IrcSocket:
                         continue
                 if line.startswith('PING'):
                     self.__handleping(line)
-                if line.startswith('251'):
+                if line.startswith(':%s 251' %(self.host)):
                     self.__handlelusermsg(line)
                 if (self.connected and
                     not self.channels.issubset(self.onChannels)):
@@ -139,7 +139,7 @@ class IrcSocket:
             print 'Quiting!'
             self.sock.close()
 
-    def ___handleping(self, line):
+    def __handleping(self, line):
         """ Handles PING message from the server
             and answers with PONG message.
             For internal use.
@@ -148,7 +148,7 @@ class IrcSocket:
         reply = 'PONG ' + pong
         self.send(reply)
 
-    def ___handlelusermsg(self, line):
+    def __handlelusermsg(self, line):
         """ Handles LUSERCLIENT (251) message.
             This is here because some irc servers don't react to
             messages sent before the connection is properly initialized.
