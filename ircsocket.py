@@ -67,14 +67,13 @@ class IrcSocket:
             For internal use.
         """
         s = self.buffer.readline()
-        if not s:
-            self.running = False
-        if s[-2:] == '\r\n':
-            s = s[:-2]
-        elif s[-1:] in '\r\n':
-            s = s[:-1]
-        for function in self.readline_cbs:
-            function(s)
+        if s:
+            if s[-2:] == '\r\n':
+                s = s[:-2]
+            elif s[-1:] in '\r\n':
+                s = s[:-1]
+            for function in self.readline_cbs:
+                function(s)
         return s
 
     def __connect(self):
@@ -120,14 +119,14 @@ class IrcSocket:
                         self.send(line)
                 if self.buffer in inputready:
                     line = self.__readline()
-                    if line != '':
-                        print line
-                    else:
+                    if not line:
+                        self.running = False
                         continue
-                if line.startswith('PING'):
-                    self.__handleping(line)
-                if line.startswith(':%s 251' %(self.host)):
-                    self.__handlelusermsg(line)
+                    print line
+                    if line.startswith('PING'):
+                        self.__handleping(line)
+                    if line.startswith(':%s 251' %(self.host)):
+                        self.__handlelusermsg(line)
                 if (self.connected and
                     not self.channels.issubset(self.onChannels)):
                     self.__join()
