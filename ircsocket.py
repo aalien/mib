@@ -21,9 +21,9 @@ import sys
 class IrcSocket:
     """ Class for talking with an IRC server.
     """
-    def __init__(self, host, port, nick, username, realname):
+    def __init__(self, server, port, nick, username, realname):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.host = host
+        self.server = server
         self.port = port
         self.nick = nick
         self.username = username
@@ -80,11 +80,11 @@ class IrcSocket:
         """ Connects the socket to the server and registers the connection.
             For internal use.
         """
-        self.sock.connect((self.host, self.port))
+        self.sock.connect((self.server, self.port))
         self.buffer = self.sock.makefile('r')
         self.send('NICK ' + self.nick)
         self.send('USER ' + self.username + ' ' +
-            socket.gethostname() + ' ' + self.host + ' :' + self.realname)
+            socket.gethostname() + ' ' + self.server + ' :' + self.realname)
 
     def __send(self):
         """ Sends a message from the message queue to the server.
@@ -125,7 +125,7 @@ class IrcSocket:
                     print line
                     if line.startswith('PING'):
                         self.__handleping(line)
-                    if line.startswith(':%s 251' %(self.host)):
+                    if line.startswith(':%s 251' %(self.server)):
                         self.__handlelusermsg(line)
                 if (self.connected and
                     not self.channels.issubset(self.onChannels)):
