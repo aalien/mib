@@ -32,6 +32,7 @@ class IrcSocket:
         self.sendqueue = []
         self.channels = set()
         self.onChannels = set()
+        self.readline_cbs = set()
 
     def join(self, channel):
         """ Adds channel to the list of channels that should be joined
@@ -53,8 +54,16 @@ class IrcSocket:
         """
         self.sendqueue.append(msg)
 
+    def register_readline_cb(self, function):
+        """ Registers a callback for function to call with every read line.
+            Function must take one string parameter.
+            Every registered function will be called once.
+        """
+        self.readline_cbs.add(function)
+
     def __readline(self):
         """ Reads line from the socket and strips the newline char(s).
+            Calls registered readline callbacks with the stripped line.
             For internal use.
         """
         s = self.buffer.readline()
@@ -64,6 +73,8 @@ class IrcSocket:
             s = s[:-2]
         elif s[-1:] in '\r\n':
             s = s[:-1]
+        for function in self.readline_cbs:
+            function(s)
         return s
 
     def __connect(self):
@@ -108,7 +119,7 @@ class IrcSocket:
                     if line != '':
                         self.send(line)
                 if self.buffer in inputready:
-                    line = self.buffer.readline()
+                    line = self.__readline()
                     if line != '':
                         print line
                     else:
