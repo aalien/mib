@@ -92,7 +92,6 @@ class IrcSocket:
         """
         if len(self.sendqueue) != 0:
             msg = self.sendqueue.pop(0)
-            print msg
             self.sock.send(msg + '\r\n')
 
     def __join(self):
@@ -122,7 +121,6 @@ class IrcSocket:
                     if not line:
                         self.running = False
                         continue
-                    print line
                     if line.startswith('PING'):
                         self.__handleping(line)
                     if line.startswith(':%s 251' %(self.server)):
@@ -130,12 +128,7 @@ class IrcSocket:
                 if (self.connected and
                     not self.channels.issubset(self.onChannels)):
                     self.__join()
-        except Exception, e:
-            print 'ERROR: ', e
-        except: # exceptions not of type Exception
-            pass
         finally:
-            print 'Quiting!'
             self.sock.close()
 
     def __handleping(self, line):

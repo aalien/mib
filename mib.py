@@ -38,13 +38,17 @@ class Mib:
         self.server, self.port = config.SERVER
         for channel in config.CHANNELS:
             self.channels.add(channel)
+        self.socket = IrcSocket(self.server, self.port, self.nick,
+                                self.username, self.realname)
+        self.socket.register_readline_cb(self.print_line)
 
     def run(self):
         """ Start socket's main loop.
         """
-        self.socket = IrcSocket(self.server, self.port, self.nick,
-                                self.username, self.realname)
         self.socket.run()
+
+    def print_line(self, line):
+        print line
 
     def loadPlugin(self, plugin, params=None):
         """ str, ([]) -> (bool, str)
@@ -101,5 +105,11 @@ class Mib:
 
 if __name__ == "__main__":
     mib = Mib()
-    mib.run()
+    try:
+        mib.run()
+    except Exception, e:
+        print 'ERROR: ', e
+    except:
+        pass
+    print 'Quiting!'
 
