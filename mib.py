@@ -35,13 +35,14 @@ class Mib:
         self.nick = config.NICK
         self.username = config.USERNAME
         self.realname = config.REALNAME
+        self.server, self.port = config.SERVER
         for channel in config.CHANNELS:
             self.channels.add(channel)
 
     def run(self):
         """ Start socket's main loop.
         """
-        self.socket = IrcSocket('irc.cc.tut.fi', 6667, self.nick,
+        self.socket = IrcSocket(self.server, self.port, self.nick,
                                 self.username, self.realname)
         self.socket.run()
 
