@@ -19,6 +19,7 @@
 #
 
 from ircsocket import IrcSocket
+from parser import parse
 import config
 
 import sys
@@ -31,6 +32,7 @@ class Mib:
         """
         sys.path.append('plugins')
         self.loadedPlugins = {} # plugin name : module
+        self.cmd_callbacks = {} # command : set(function)
 
         self.nick = config.NICK
         self.username = config.USERNAME
@@ -39,7 +41,7 @@ class Mib:
         self.channels = config.CHANNELS
         self.socket = IrcSocket(self.server, self.port, self.nick,
                                 self.username, self.realname)
-        self.socket.register_readline_cb(self.print_line)
+        self.socket.register_readline_cb(self.parse_line)
         for channel in self.channels:
             self.socket.join(channel)
 
@@ -48,8 +50,16 @@ class Mib:
         """
         self.socket.run()
 
-    def print_line(self, line):
+    def parse_line(self, line):
+        """ Parse line and call callback registered for command.
+        """
         print line
+        parsed = parse(line)
+        if not parsed:
+            print 'Unable to parse line: "%s"' %(line)
+            return
+        for function in self.cmd_callbacks.get(parsed.cmd, ()):
+            function(parsed)
 
     def loadPlugin(self, plugin, params=None):
         """ str, ([]) -> (bool, str)
@@ -103,6 +113,14 @@ class Mib:
             return (True, 'Unloaded plugin %s' %(plugin))
         else:
             return (False, 'Failed to unload plugin %s' %(plugin))
+
+    def register_cmd(self, cmd, function):
+        """ Registers a function to be called when a line with
+            cmd is seen. Function must take one named tuple parameter.
+            Tuple contains line in parsed form with fields
+            (sender, nick, user, host), command, to, channel, message
+        """
+        self.cmd_callbacks.setdefault(cmd, set()).add(function)
 
 if __name__ == "__main__":
     mib = Mib()
