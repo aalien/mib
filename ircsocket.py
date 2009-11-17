@@ -31,7 +31,7 @@ class IrcSocket:
         self.connected = False
         self.sendqueue = []
         self.channels = set()
-        self.onChannels = set()
+        self.on_channels = set()
         self.readline_cbs = set()
 
     def join(self, channel):
@@ -98,9 +98,9 @@ class IrcSocket:
         """ Joins the channels in the channel list.
             For internal use.
         """
-        for channel in self.channels.difference(self.onChannels):
+        for channel in self.channels.difference(self.on_channels):
             self.send('JOIN ' + channel)
-            self.onChannels.add(channel)
+            self.on_channels.add(channel)
 
     def run(self):
         """ The main loop.
@@ -126,7 +126,7 @@ class IrcSocket:
                     if line.startswith(':%s 251' %(self.server)):
                         self.__handlelusermsg(line)
                 if (self.connected and
-                    not self.channels.issubset(self.onChannels)):
+                    not self.channels.issubset(self.on_channels)):
                     self.__join()
         finally:
             self.sock.close()

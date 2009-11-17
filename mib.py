@@ -31,7 +31,7 @@ class Mib:
         """ Initialize variables and read config.
         """
         sys.path.append('plugins')
-        self.loadedPlugins = {} # plugin name : module
+        self.loaded_plugins = {} # plugin name : module
         self.cmd_callbacks = {} # command : set(function)
 
         self.nick = config.NICK
@@ -61,7 +61,7 @@ class Mib:
         for function in self.cmd_callbacks.get(parsed.cmd, ()):
             function(parsed)
 
-    def loadPlugin(self, plugin, params=None):
+    def load_plugin(self, plugin, params=None):
         """ str, ([]) -> (bool, str)
             
             Loads plugin from plugins/<plugin>.py
@@ -69,7 +69,7 @@ class Mib:
             Returns a tuple with a boolean stating if the plugin
             was loaded properly and a message telling what happened.
         """
-        if plugin in self.loadedPlugins:
+        if plugin in self.loaded_plugins:
             return (False, 'Plugin %s already loaded' %(plugin))
         if not os.path.exists(os.path.join('plugins', plugin + '.py')):
             return (False, 'Plugin %s does not exists' %(plugin))
@@ -86,19 +86,19 @@ class Mib:
             print err
 
         if success:
-            self.loadedPlugins[plugin] = obj
+            self.loaded_plugins[plugin] = obj
             return (True, 'Loaded plugin %s' %(plugin))
         else:
             return (False, 'Failed to load plugin %s' %(plugin))
 
-    def unloadPlugin(self, plugin):
+    def unload_plugin(self, plugin):
         """ str -> (bool, str)
             
             Unloads <plugin> if it's loaded.
             Return a tuple with a boolean stating if the plugin
             was unloaded properly and a message telling what happened.
         """
-        if plugin in self.loadedPlugins:
+        if plugin in self.loaded_plugins:
             try:
                 exec('del %s' %(plugin))
                 sys.modules.pop(plugin)
@@ -109,7 +109,7 @@ class Mib:
         else:
             success = False
         if success:
-            del self.loadedPlugins[plugin]
+            del self.loaded_plugins[plugin]
             return (True, 'Unloaded plugin %s' %(plugin))
         else:
             return (False, 'Failed to unload plugin %s' %(plugin))
