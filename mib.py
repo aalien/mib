@@ -66,7 +66,10 @@ class Mib:
             return
         # call registered functions
         for function in self.cmd_callbacks.get(parsed.cmd, ()):
-            function(parsed)
+            try:
+                function(parsed)
+            except Exception, e:
+                print 'Error from function', repr(function), ':', e
         # call registered privmsg functions with pre-parsed line
         if parsed.cmd == 'PRIVMSG':
             cmd_prefix = parsed.postfix.split(' ', 1)[0]
@@ -79,7 +82,10 @@ class Mib:
                                          parsed.params, postfix)
                 print 'Searching for command', cmd
                 for function in self.privmsg_cmd_callbacks.get(cmd, ()):
-                    function(stripped_parsed)
+                    try:
+                        function(stripped_parsed)
+                    except Exception, e:
+                        print 'Error from function', repr(function), ':', e
 
     def load_plugin(self, plugin, params=None):
         """ str, ([]) -> (bool, str)
