@@ -22,6 +22,7 @@ from ircsocket import IrcSocket
 from parser import parse, IRCMsg
 import config
 
+import os
 import sys
 
 class Mib:
@@ -35,6 +36,7 @@ class Mib:
         self.cmd_callbacks = {} # command : set(function)
         self.privmsg_cmd_callbacks = {} # command : set(function)
 
+        self.plugins = set(config.LOAD_PLUGINS)
         self.cmd_prefixes = set(config.CMD_PREFIXES)
         self.nick = config.NICK
         self.username = config.USERNAME
@@ -46,6 +48,8 @@ class Mib:
         self.socket.register_readline_cb(self.parse_line)
         for channel in self.channels:
             self.socket.join(channel)
+        for plugin in self.plugins:
+            print self.load_plugin(plugin)[1]
 
     def run(self):
         """ Start socket's main loop.

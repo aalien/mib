@@ -4,4 +4,5 @@ USERNAME = 'mib'
 REALNAME = 'Modular IRC Bot'
 CHANNELS = []
 CMD_PREFIXES = []
+LOAD_PLUGINS = []
 
