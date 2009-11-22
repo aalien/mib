@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 IRCMsg = namedtuple('IRCMsg', 'prefix cmd params postfix')
+Prefix = namedtuple('Prefix', 'nick user host')
 
 def parse(line):
     """ Parses line and returns a named tuple IRCMsg
@@ -40,4 +41,24 @@ def parse(line):
 
     return IRCMsg(prefix=prefix[1:], cmd=command, params=params,
                   postfix=postfix[1:])
+
+def parse_prefix(prefix):
+    """ Parser the prefix from an IRC message.
+        Prefix form is "servername | nick!user@host".
+        Returns a named tuple Prefix with fields (nick, user, host)
+        - nick is the nickname
+        - user is the username
+        - host is the hostname or the servername
+    """
+    nick = ''
+    user = ''
+    host = ''
+    if prefix.find('!') != -1:
+        nick, prefix = prefix.split('!', 1)
+    if prefix.find('@') != -1:
+        user, host = prefix.split('@', 1)
+    if not nick:
+        host = prefix
+
+    return Prefix(nick=nick, user=user, host=host)
 
