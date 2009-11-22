@@ -34,8 +34,8 @@ def parse(line):
     else:
         params = line
 
-    # command and params must be non-empty
-    if len(command) == 0 or len(params) == 0:
+    # command must be non-empty
+    if len(command) == 0:
         return None
 
     return IRCMsg(prefix=prefix[1:], cmd=command, params=params,
