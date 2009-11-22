@@ -19,7 +19,7 @@
 #
 
 from ircsocket import IrcSocket
-from parser import parse
+from parser import parse, IRCMsg
 import config
 
 import sys
@@ -33,7 +33,9 @@ class Mib:
         sys.path.append('plugins')
         self.loaded_plugins = {} # plugin name : module
         self.cmd_callbacks = {} # command : set(function)
+        self.privmsg_cmd_callbacks = {} # command : set(function)
 
+        self.cmd_prefixes = set(config.CMD_PREFIXES)
         self.nick = config.NICK
         self.username = config.USERNAME
         self.realname = config.REALNAME
@@ -51,15 +53,29 @@ class Mib:
         self.socket.run()
 
     def parse_line(self, line):
-        """ Parse line and call callback registered for command.
+        """ Parse line and call callbacks registered for command.
         """
         print line
         parsed = parse(line)
         if not parsed:
             print 'Unable to parse line: "%s"' %(line)
             return
+        # call registered functions
         for function in self.cmd_callbacks.get(parsed.cmd, ()):
             function(parsed)
+        # call registered privmsg functions with pre-parsed line
+        if parsed.cmd == 'PRIVMSG':
+            cmd_prefix = parsed.postfix.split(' ', 1)[0]
+            postfix = parsed.postfix[len(cmd_prefix):].lstrip()
+            if cmd_prefix in self.cmd_prefixes:
+                print 'Found command prefix', cmd_prefix
+                cmd = postfix.lstrip().split(' ', 1)[0]
+                postfix = postfix[len(cmd):].lstrip()
+                stripped_parsed = IRCMsg(parsed.prefix, parsed.cmd,
+                                         parsed.params, postfix)
+                print 'Searching for command', cmd
+                for function in self.privmsg_cmd_callbacks.get(cmd, ()):
+                    function(stripped_parsed)
 
     def load_plugin(self, plugin, params=None):
         """ str, ([]) -> (bool, str)
@@ -118,9 +134,18 @@ class Mib:
         """ Registers a function to be called when a line with
             cmd is seen. Function must take one named tuple parameter.
             Tuple contains line in parsed form with fields
-            (sender, nick, user, host), command, to, channel, message
+            (prefix, cmd, params, postfix)
         """
         self.cmd_callbacks.setdefault(cmd, set()).add(function)
+
+    def register_privmsg_cmd(self, cmd, function):
+        """ Registers a function to be called when a PRIVMSG with
+            cmd is seen. Function must take one named tuple parameter.
+            Tuple contains line in parsed form with fields
+            (prefix, cmd, params,
+            postfix stripped from one of CMD_PREFIXES and cmd)
+        """
+        self.privmsg_cmd_callbacks.setdefault(cmd, set()).add(function)
 
 if __name__ == "__main__":
     mib = Mib()
