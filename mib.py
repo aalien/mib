@@ -101,11 +101,11 @@ class Mib:
             return (False, 'Plugin %s does not exists' %(plugin))
 
         try:
-            exec('from %s import %s' %(plugin, plugin))
+            module = __import__(plugin)
             if params:
-                exec('obj = %s(self, params)' %(plugin))
+                obj = module.init(params)
             else:
-                exec('obj = %s(self)' %(plugin))
+                obj = module.init()
             success = True
         except Exception, err:
             success = False

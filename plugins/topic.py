@@ -1,8 +1,7 @@
 from parser import parse_prefix
 
-class topic:
+class Topic:
     """ Example plugin to change channels topic.
-        Class name must be lowercased though it's ugly :(
     """
     def __init__(self, mib, params=None):
         """ Constructor.
@@ -49,4 +48,10 @@ class topic:
 
         # else, we can set a new topic
         self.mib.socket.send('TOPIC %s :%s' %(channel, topic))
+
+def init(params=None):
+    """ Initializer function for plugin loader. Must be named init.
+        Creates a topic object and returns it to the plugin loader function.
+    """
+    return Topic(params)
 
