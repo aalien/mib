@@ -117,29 +117,6 @@ class Mib:
         else:
             return (False, 'Failed to load plugin %s' %(plugin))
 
-    def unload_plugin(self, plugin):
-        """ str -> (bool, str)
-            
-            Unloads <plugin> if it's loaded.
-            Return a tuple with a boolean stating if the plugin
-            was unloaded properly and a message telling what happened.
-        """
-        if plugin in self.loaded_plugins:
-            try:
-                exec('del %s' %(plugin))
-                sys.modules.pop(plugin)
-                success = True
-            except Exception, err:
-                success = False
-                print err
-        else:
-            success = False
-        if success:
-            del self.loaded_plugins[plugin]
-            return (True, 'Unloaded plugin %s' %(plugin))
-        else:
-            return (False, 'Failed to unload plugin %s' %(plugin))
-
     def register_cmd(self, cmd, function):
         """ Registers a function to be called when a line with
             cmd is seen. Function must take one named tuple parameter.
