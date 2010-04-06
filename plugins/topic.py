@@ -49,9 +49,9 @@ class Topic:
         # else, we can set a new topic
         self.mib.socket.send('TOPIC %s :%s' %(channel, topic))
 
-def init(params=None):
+def init(mib, params=None):
     """ Initializer function for plugin loader. Must be named init.
         Creates a topic object and returns it to the plugin loader function.
     """
-    return Topic(params)
+    return Topic(mib, params)
 

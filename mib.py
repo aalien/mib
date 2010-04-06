@@ -103,9 +103,9 @@ class Mib:
         try:
             module = __import__(plugin)
             if params:
-                obj = module.init(params)
+                obj = module.init(self, params)
             else:
-                obj = module.init()
+                obj = module.init(self)
             success = True
         except Exception, err:
             success = False
