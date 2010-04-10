@@ -42,10 +42,7 @@ class IrcSocket:
     def quit(self, reason=''):
         """ Quits the session. Reason will be sent as the quit message.
         """
-        if reason != '':
-            reply = 'QUIT :' + msg.params + ' (' + msg.nick + ')'
-        else:
-            reply = 'QUIT :(' + msg.nick + ')'
+        reply = 'QUIT :%s' % (reason)
         self.send(reply)
 
     def send(self, msg):
