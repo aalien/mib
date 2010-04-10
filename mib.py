@@ -35,6 +35,7 @@ class Mib:
         self.loaded_plugins = {} # plugin name : module
         self.cmd_callbacks = {} # command : set(function)
         self.privmsg_cmd_callbacks = {} # command : set(function)
+        self.command_masks = {} # command : list(regexp)
 
         self.plugins = set(config.LOAD_PLUGINS)
         self.cmd_prefixes = set(config.CMD_PREFIXES)
@@ -80,12 +81,22 @@ class Mib:
                 postfix = postfix[len(cmd):].lstrip()
                 stripped_parsed = IRCMsg(parsed.prefix, parsed.cmd,
                                          parsed.params, postfix)
+                print "stripped_parsed = ", stripped_parsed
                 print 'Searching for command', cmd
                 for function in self.privmsg_cmd_callbacks.get(cmd, ()):
-                    try:
-                        function(stripped_parsed)
-                    except Exception, e:
-                        print 'Error from function', repr(function), ':', e
+                    run = False
+                    if cmd not in self.command_masks:
+                        run = True
+                    else:
+                        for regexp in self.command_masks[cmd]:
+                            if regexp.match(parsed.prefix):
+                                run = True
+                                break
+                    if run:
+                        try:
+                            function(stripped_parsed)
+                        except Exception, e:
+                            print 'Error from function', repr(function), ':', e
 
     def load_plugin(self, plugin, params=None):
         """ str, ([]) -> (bool, str)
