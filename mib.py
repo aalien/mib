@@ -93,12 +93,16 @@ class Mib:
                     if cmd not in self.command_masks:
                         run = True
                     else:
+                        print 'There are limitations for this command'
                         for regexp in self.command_masks[cmd]:
+                            print 'Matching %s to %s' % (parsed.prefix,
+                                                         regexp.pattern)
                             if regexp.match(parsed.prefix):
                                 run = True
                                 break
                     if run:
                         try:
+                            print 'Executing command %s' % cmd
                             function(stripped_parsed)
                         except Exception, e:
                             print 'Error from function', repr(function), ':', e
@@ -150,19 +154,23 @@ class Mib:
         """
         self.privmsg_cmd_callbacks.setdefault(cmd, set()).add(function)
 
-    def add_cmd_permission(self, cmd, mask):
+    def add_cmd_permission(self, cmd, mask, regexpify=True):
         """ Creates a regular expression from the mask and adds it
-            to the list of allowed regexps for the cmd
+            to the list of allowed regexps for the cmd.
+            If regexpify is false, mask will be used as is
         """
-        mask = mask.replace('*', '.*').replace('?', '.?')
+        if regexpify:
+            mask = mask.replace('*', '.*').replace('?', '.?')
         m = re.compile(mask)
         self.command_masks.setdefault(cmd, []).append(m)
 
-    def rm_cmd_permission(self, cmd, mask):
+    def rm_cmd_permission(self, cmd, mask, regexpify=True):
         """ Creates a regular expression from the mask, and removes
-            the permission for that expression from cmd's list
+            the permission for that expression from cmd's list.
+            If regexpify is false, mask will be used as is
         """
-        mask = mask.replace('*', '.*').replace('?', '.?')
+        if regexpify:
+            mask = mask.replace('*', '.*').replace('?', '.?')
         if cmd in self.command_masks:
             for index, regexp in enumerate(self.command_masks[cmd]):
                 if regexp.pattern == mask:
