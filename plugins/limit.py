@@ -2,6 +2,8 @@ from parser import parse_prefix
 
 class Limit_Plugin:
     """ Plugin to control which users can use which commands.
+        Saves list of commands and their permissions to limit.cfg
+        in format "command regexp".
     """
 
     def __init__(self, mib, params=None):
