@@ -12,6 +12,9 @@ class Topic:
         self.mib = mib
         self.mib.register_privmsg_cmd('topic', self.change_topic)
 
+    def clean(self):
+        pass
+
     def change_topic(self, msg):
         """ Changes topic according to what is given in msg
             Parameters:

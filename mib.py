@@ -58,6 +58,10 @@ class Mib:
         """
         self.socket.run()
 
+    def clean(self):
+        for plugin in self.loaded_plugins.itervalues():
+            plugin.clean()
+
     def parse_line(self, line):
         """ Parse line and call callbacks registered for command.
         """
@@ -173,5 +177,6 @@ if __name__ == "__main__":
         print 'ERROR: ', e
     except:
         pass
+    mib.clean()
     print 'Quiting!'
 

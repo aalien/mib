@@ -8,6 +8,9 @@ class Load_Plugin:
         self.mib = mib
         self.mib.register_privmsg_cmd('plugin', self.load_plugin)
 
+    def clean(self):
+        pass
+
     def load_plugin(self, msg):
         prefix = parse_prefix(msg.prefix)
         plugin = msg.postfix.split()
