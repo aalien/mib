@@ -154,6 +154,17 @@ class Mib:
         m = re.compile(mask)
         self.command_masks.setdefault(cmd, []).append(m)
 
+    def rm_cmd_permission(self, cmd, mask):
+        """ Creates a regular expression from the mask, and removes
+            the permission for that expression from cmd's list
+        """
+        mask = mask.replace('*', '.*').replace('?', '.?')
+        if cmd in self.command_masks:
+            for index, regexp in enumerate(self.command_masks[cmd]):
+                if regexp.pattern == mask:
+                    del self.command_masks[cmd][index]
+                    break
+
 if __name__ == "__main__":
     mib = Mib()
     try:
