@@ -23,6 +23,7 @@ from parser import parse, IRCMsg
 import config
 
 import os
+import re
 import sys
 
 class Mib:
@@ -144,6 +145,14 @@ class Mib:
             postfix stripped from one of CMD_PREFIXES and cmd)
         """
         self.privmsg_cmd_callbacks.setdefault(cmd, set()).add(function)
+
+    def add_cmd_permission(self, cmd, mask):
+        """ Creates a regular expression from the mask and adds it
+            to the list of allowed regexps for the cmd
+        """
+        mask = mask.replace('*', '.*').replace('?', '.?')
+        m = re.compile(mask)
+        self.command_masks.setdefault(cmd, []).append(m)
 
 if __name__ == "__main__":
     mib = Mib()
