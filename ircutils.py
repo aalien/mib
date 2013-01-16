@@ -44,3 +44,9 @@ def ban(mask):
 def unban(mask):
     return mode('-b', mask)
 
+def regexpify(mask):
+    return mask.replace('*', '.*').replace('?', '.?')
+
+def unregexpify(regexp):
+    return regexp.replace('.*', '*').replace('.?', '?')
+

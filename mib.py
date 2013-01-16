@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #
 # mib: Modular irc bot
@@ -19,6 +19,7 @@
 #
 
 from ircsocket import IrcSocket
+from ircutils import regexpify
 from parser import parse, IRCMsg
 import config
 
@@ -157,20 +158,20 @@ class Mib:
     def add_cmd_permission(self, cmd, mask, regexpify=True):
         """ Creates a regular expression from the mask and adds it
             to the list of allowed regexps for the cmd.
-            If regexpify is false, mask will be used as is
+            mask is an IRC mask, and will be changed into a corresponding
+            regular expression.
         """
-        if regexpify:
-            mask = mask.replace('*', '.*').replace('?', '.?')
+        mask = regexpify(mask)
         m = re.compile(mask)
         self.command_masks.setdefault(cmd, []).append(m)
 
-    def rm_cmd_permission(self, cmd, mask, regexpify=True):
+    def rm_cmd_permission(self, cmd, mask):
         """ Creates a regular expression from the mask, and removes
             the permission for that expression from cmd's list.
-            If regexpify is false, mask will be used as is
+            mask is an IRC mask, and will be changed into a corresponding
+            regular expression.
         """
-        if regexpify:
-            mask = mask.replace('*', '.*').replace('?', '.?')
+        mask = regexpify(mask)
         if cmd in self.command_masks:
             for index, regexp in enumerate(self.command_masks[cmd]):
                 if regexp.pattern == mask:
